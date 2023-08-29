@@ -1,0 +1,566 @@
+basePath: /
+definitions:
+  domain.HistoryOfUserGetDTO:
+    properties:
+      month:
+        type: integer
+      user_id:
+        type: integer
+      year:
+        type: integer
+    type: object
+  domain.HistoryResponce:
+    properties:
+      url:
+        type: string
+    type: object
+  domain.LinitOffset:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      random:
+        type: boolean
+    type: object
+  domain.PersentOfUsersToSegmentsDTO:
+    properties:
+      persent:
+        type: number
+      segment_names:
+        items:
+          type: string
+        type: array
+    type: object
+  domain.Segment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  domain.SegmentAddDTO:
+    properties:
+      name:
+        type: string
+    type: object
+  domain.SegmentName:
+    properties:
+      name:
+        type: string
+    type: object
+  domain.SegmentUpdateDTO:
+    properties:
+      id:
+        type: integer
+      new_name:
+        type: string
+    type: object
+  domain.UserAffected:
+    properties:
+      affected:
+        type: integer
+      ignored:
+        type: integer
+    type: object
+  domain.UserFromSegmentsDeleteDTO:
+    properties:
+      segment_names:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: integer
+    type: object
+  domain.UserId:
+    properties:
+      id:
+        type: integer
+    type: object
+  domain.UserToSegmentsAddDTO:
+    properties:
+      segment_names:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: integer
+    type: object
+  domain.UsersGetPercentDTO:
+    properties:
+      persent:
+        type: number
+    type: object
+  domain.UsersIds:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  domain.UsersToSegmentsAddDTO:
+    properties:
+      segment_names:
+        items:
+          type: string
+        type: array
+      user_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  domain.UsersWithLimitOffsetToSegments:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      random:
+        type: boolean
+      segment_names:
+        items:
+          type: string
+        type: array
+    type: object
+  handler.badResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.successResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for work with segments and users
+  title: segment-service
+  version: "1.0"
+paths:
+  /history:
+    post:
+      consumes:
+      - application/json
+      description: returl url of a file with user's fistory in csv format
+      operationId: get-history
+      parameters:
+      - description: user_id, month, year
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.HistoryOfUserGetDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.HistoryResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: return history of a user
+      tags:
+      - history
+  /segment:
+    delete:
+      consumes:
+      - application/json
+      description: delete a segment from the database
+      operationId: del-segmet
+      parameters:
+      - description: segment name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SegmentName'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Segment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: delete a segment
+      tags:
+      - segment
+    post:
+      consumes:
+      - application/json
+      description: add a segment to the database
+      operationId: get-segment
+      parameters:
+      - description: segment name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SegmentAddDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Segment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: add a segment
+      tags:
+      - segment
+    put:
+      consumes:
+      - application/json
+      description: rename a segment
+      operationId: update-segmets
+      parameters:
+      - description: id and new name of a segment
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SegmentUpdateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Segment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: rename a segment
+      tags:
+      - segment
+  /segment/all:
+    get:
+      consumes:
+      - application/json
+      description: return all segments
+      operationId: get-segmets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Segment'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: get all segments
+      tags:
+      - segment
+  /user:
+    delete:
+      consumes:
+      - application/json
+      description: if some users aren't registered they will be ignored
+      operationId: delete-users
+      parameters:
+      - description: users ids
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UsersIds'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UserAffected'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: delete users
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: if some users are registered? they will be ignored
+      operationId: add-users
+      parameters:
+      - description: users ids
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UsersIds'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UserAffected'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: add users
+      tags:
+      - user
+  /user/get:
+    post:
+      consumes:
+      - application/json
+      description: return users with limit, offset, random params
+      operationId: get-users
+      parameters:
+      - description: limit offset of users
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LinitOffset'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UsersIds'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: get users with limit offset
+      tags:
+      - user
+  /user/get/persent:
+    post:
+      consumes:
+      - application/json
+      description: return persent of random users
+      operationId: get-persent-users
+      parameters:
+      - description: persent of users
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UsersGetPercentDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.UsersIds'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: get persent of users
+      tags:
+      - user
+  /user_in_segment:
+    delete:
+      consumes:
+      - application/json
+      description: delete users from segments by names
+      operationId: delete-users-from-segments
+      parameters:
+      - description: users ids and segments names
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserFromSegmentsDeleteDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: delete users from segments
+      tags:
+      - user-in-segment
+  /user_in_segment/add/many:
+    post:
+      consumes:
+      - application/json
+      description: bind users by ids and segments by names
+      operationId: add-users-to-segments
+      parameters:
+      - description: users ids and segments names
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UsersToSegmentsAddDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: bind users and segments
+      tags:
+      - user-in-segment
+  /user_in_segment/add/params:
+    post:
+      consumes:
+      - application/json
+      description: bind users by limit/offset and segments by names
+      operationId: add-users-limit-offset-to-segments
+      parameters:
+      - description: limit, offset, random for getting users and segments names
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UsersWithLimitOffsetToSegments'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: bind users and segments
+      tags:
+      - user-in-segment
+  /user_in_segment/add/persent:
+    post:
+      consumes:
+      - application/json
+      description: bind users by persent and segments by names
+      operationId: add-users-persent-to-segments
+      parameters:
+      - description: persent of users and segments names
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.PersentOfUsersToSegmentsDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: bind users and segments
+      tags:
+      - user-in-segment
+  /user_in_segment/get/segment:
+    post:
+      consumes:
+      - application/json
+      description: get users in segments
+      operationId: get-users-in-segment
+      parameters:
+      - description: segment name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SegmentName'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: get users in segments
+      tags:
+      - user-in-segment
+  /user_in_segment/get/user:
+    post:
+      consumes:
+      - application/json
+      description: get user's segments
+      operationId: get-segment-of-user
+      parameters:
+      - description: users id
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserId'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: get user's segments
+      tags:
+      - user-in-segment
+  /user_in_segment/many:
+    post:
+      consumes:
+      - application/json
+      description: bind user by id and segments by names
+      operationId: add-user-to-segments
+      parameters:
+      - description: user id and segments names
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserToSegmentsAddDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: bind user and segments
+      tags:
+      - user-in-segment
+swagger: "2.0"
