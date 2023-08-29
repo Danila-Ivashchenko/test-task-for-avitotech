@@ -428,6 +428,33 @@ paths:
       summary: bind users and segments
       tags:
       - user-in-segment
+  /user_in_segment/add/one:
+    post:
+      consumes:
+      - application/json
+      description: bind user by id and segments by names
+      operationId: add-user-to-segments
+      parameters:
+      - description: user id and segments names
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserToSegmentsAddDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.badResponse'
+      summary: bind user and segments
+      tags:
+      - user-in-segment
   /user_in_segment/add/params:
     post:
       consumes:
@@ -534,33 +561,6 @@ paths:
           schema:
             $ref: '#/definitions/handler.badResponse'
       summary: get user's segments
-      tags:
-      - user-in-segment
-  /user_in_segment/many:
-    post:
-      consumes:
-      - application/json
-      description: bind user by id and segments by names
-      operationId: add-user-to-segments
-      parameters:
-      - description: user id and segments names
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/domain.UserToSegmentsAddDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.successResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.badResponse'
-      summary: bind user and segments
       tags:
       - user-in-segment
 swagger: "2.0"

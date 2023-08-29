@@ -446,6 +446,47 @@
                 }
             }
         },
+        "/user_in_segment/add/one": {
+            "post": {
+                "description": "bind user by id and segments by names",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user-in-segment"
+                ],
+                "summary": "bind user and segments",
+                "operationId": "add-user-to-segments",
+                "parameters": [
+                    {
+                        "description": "user id and segments names",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UserToSegmentsAddDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.successResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.badResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user_in_segment/add/params": {
             "post": {
                 "description": "bind users by limit/offset and segments by names",
@@ -591,47 +632,6 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/domain.UserId"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.successResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.badResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user_in_segment/many": {
-            "post": {
-                "description": "bind user by id and segments by names",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user-in-segment"
-                ],
-                "summary": "bind user and segments",
-                "operationId": "add-user-to-segments",
-                "parameters": [
-                    {
-                        "description": "user id and segments names",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.UserToSegmentsAddDTO"
                         }
                     }
                 ],
