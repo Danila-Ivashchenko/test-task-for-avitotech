@@ -9,7 +9,7 @@ import (
 )
 
 type configer interface {
-	GetHttpURL() string
+	GetHttpPort() string
 	GetEnv() string
 }
 
@@ -20,13 +20,13 @@ type api struct {
 	historyHandler       HistoryHandler
 	server               *gin.Engine
 
-	url string
-	env string
+	port string
+	env  string
 }
 
 func New(cfg configer, uh UserHandler, sh SegmentHandler, ush UserInSegmentHandler, h HistoryHandler) *api {
 	api := &api{
-		url:                  cfg.GetHttpURL(),
+		port:                 cfg.GetHttpPort(),
 		env:                  cfg.GetEnv(),
 		userHandler:          uh,
 		segmentHandler:       sh,
@@ -67,5 +67,5 @@ func (a api) bind() {
 }
 
 func (a api) Run() error {
-	return a.server.Run(a.url)
+	return a.server.Run(":" + a.port)
 }
