@@ -25,8 +25,8 @@ type UsersToSegmentsAddDTO struct {
 	SegmentNames []string `json:"segment_names"`
 }
 
-type PersentOfUsersToSegmentsDTO struct {
-	Percent      float32  `json:"persent"`
+type PercentOfUsersToSegmentsDTO struct {
+	Percent      float32  `json:"percent"`
 	SegmentNames []string `json:"segment_names"`
 }
 

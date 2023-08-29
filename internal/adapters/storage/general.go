@@ -74,9 +74,9 @@ func makeHistoryRecords(users, segments []int64, action string) string {
 		}
 		for j, segment := range segments {
 			if j == 0 {
-				result = fmt.Sprintf("(%d, %d, '%s')", user, segment, action)
+				result += fmt.Sprintf("(%d, %d, '%s')", user, segment, action)
 			} else {
-				result = fmt.Sprintf(", (%d, %d, '%s')", user, segment, action)
+				result += fmt.Sprintf(", (%d, %d, '%s')", user, segment, action)
 			}
 		}
 	}

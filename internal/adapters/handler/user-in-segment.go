@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"segment-service/internal/core/domain"
+	"segment-service/internal/lib/validator"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ type userInSegmentServicer interface {
 	AddUserToSegments(ctx context.Context, dto *domain.UserToSegmentsAddDTO) error
 	AddUsersToSegments(ctx context.Context, dto *domain.UsersToSegmentsAddDTO) error
 	AddUsersWithLimitOffsetToSegments(ctx context.Context, dto *domain.UsersWithLimitOffsetToSegments) error
-	AddPersentOfUsersToSegments(ctx context.Context, dto *domain.PersentOfUsersToSegmentsDTO) error
+	AddPercentOfUsersToSegments(ctx context.Context, dto *domain.PercentOfUsersToSegmentsDTO) error
 
 	DeleteUserFromSegments(ctx context.Context, dto *domain.UserFromSegmentsDeleteDTO) error
 	GetUserInSegments(ctx context.Context, dto *domain.UserId) (*domain.UserInSegments, error)
@@ -50,6 +51,17 @@ func (h userInSegmentHandler) AddUsersToSegments(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentNames(request.SegmentNames)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+	err = validator.ValidateIds(request.UserIds)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
@@ -80,6 +92,16 @@ func (h userInSegmentHandler) AddUsersWithLimitOffsetToSegments(c *gin.Context) 
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentNames(request.SegmentNames)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+	err = validator.ValidateLimitOffset(request.Limit, request.Offset)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
@@ -92,28 +114,39 @@ func (h userInSegmentHandler) AddUsersWithLimitOffsetToSegments(c *gin.Context) 
 	c.JSON(http.StatusOK, successResponse{Success: true})
 }
 
-// AddPersentOfUsersToSegments
+// AddPercentOfUsersToSegments
 // @Summary bind users and segments
 // @Tags user-in-segment
 // @Description bind users by persent and segments by names
 // @ID add-users-persent-to-segments
 // @Accept json
 // @Produce json
-// @Param input body domain.PersentOfUsersToSegmentsDTO true "persent of users and segments names"
+// @Param input body domain.PercentOfUsersToSegmentsDTO true "persent of users and segments names"
 // @Success 200 {object} successResponse
 // @Failure 400 {object} badResponse
 // @Router /user_in_segment/add/persent [post]
-func (h userInSegmentHandler) AddPersentOfUsersToSegments(c *gin.Context) {
-	request := &domain.PersentOfUsersToSegmentsDTO{}
+func (h userInSegmentHandler) AddPercentOfUsersToSegments(c *gin.Context) {
+	request := &domain.PercentOfUsersToSegmentsDTO{}
 	err := c.ShouldBind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentNames(request.SegmentNames)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+	err = validator.ValidatePercent(request.Percent)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
-	err = h.service.AddPersentOfUsersToSegments(ctx, request)
+	err = h.service.AddPercentOfUsersToSegments(ctx, request)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
@@ -132,7 +165,7 @@ func (h userInSegmentHandler) AddPersentOfUsersToSegments(c *gin.Context) {
 // @Param input body domain.UserToSegmentsAddDTO true "user id and segments names"
 // @Success 200 {object} successResponse
 // @Failure 400 {object} badResponse
-// @Router /user_in_segment/many [post]
+// @Router /user_in_segment/add/one [post]
 func (h userInSegmentHandler) AddUserToSegments(c *gin.Context) {
 	request := &domain.UserToSegmentsAddDTO{}
 	err := c.ShouldBind(&request)
@@ -140,6 +173,17 @@ func (h userInSegmentHandler) AddUserToSegments(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentNames(request.SegmentNames)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+	err = validator.ValidateId(request.UserId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
@@ -170,6 +214,17 @@ func (h userInSegmentHandler) DeleteUserFromSegments(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentNames(request.SegmentNames)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+	err = validator.ValidateId(request.UserId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
@@ -200,6 +255,12 @@ func (h userInSegmentHandler) GetUserInSegments(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateId(request.Id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
@@ -230,6 +291,12 @@ func (h userInSegmentHandler) GetUsersInSegment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentName(request.Name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 

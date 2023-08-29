@@ -11,7 +11,7 @@ type UserStorager interface {
 
 	GetUser(context.Context, *domain.UserId) (*domain.User, error)
 	GetUsersIds(context.Context, *domain.LinitOffset) (*domain.UsersIds, error)
-	GetPersentOfUsersIds(context.Context, *domain.UsersGetPercentDTO) (*domain.UsersIds, error)
+	GetPercentOfUsersIds(context.Context, *domain.UsersGetPercentDTO) (*domain.UsersIds, error)
 
 	DeleteUsers(context.Context, *domain.UsersIds) (*domain.UserAffected, error)
 }

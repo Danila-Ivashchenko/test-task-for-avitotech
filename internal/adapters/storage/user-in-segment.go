@@ -59,7 +59,7 @@ func (s userInSegmentStorage) AddUserToSegments(ctx context.Context, dto *domain
 
 	_, err = db.ExecContext(ctx, stmt)
 	if err != nil {
-		return domain.ErrorNoSuchUser
+		return domain.ErrorSomeUsersAlreadyInSegments
 	}
 
 	return nil
@@ -203,7 +203,7 @@ func (s userInSegmentStorage) AddUsersWithLimitOffsetToSegments(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
-
+	
 	additionCase := fmt.Sprintf(" WHERE id NOT IN(SELECT user_id FROM user_in_segment WHERE segment_id IN%s)", arrayInt64ToStr(segmentIds))
 	if dto.Rand {
 		additionCase += " ORDER BY RANDOM()"
@@ -214,14 +214,16 @@ func (s userInSegmentStorage) AddUsersWithLimitOffsetToSegments(ctx context.Cont
 	if dto.Offset > 0 {
 		additionCase += fmt.Sprintf(` OFFSET %d`, dto.Offset)
 	}
+
 	users, err := s.getUsersWithAdditionCase(ctx, additionCase, dto.Limit)
+	
 	if err != nil {
 		return nil, err
 	}
 	if len(users.Ids) == 0 {
 		return nil, domain.ErrorNoUsers
 	}
-
+	fmt.Println(users.Ids)
 	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", mergeUsersAndSegments(users.Ids, segmentIds))
 
 	_, err = db.ExecContext(ctx, stmt)
@@ -248,7 +250,7 @@ func (s userInSegmentStorage) getUsersWithAdditionCase(ctx context.Context, addi
 	return getIdsFromRows(rows, 0, cap)
 }
 
-func (s userInSegmentStorage) AddPersentOfUsersToSegments(ctx context.Context, dto *domain.PersentOfUsersToSegmentsDTO) (*domain.UsersIds, error) {
+func (s userInSegmentStorage) AddPercentOfUsersToSegments(ctx context.Context, dto *domain.PercentOfUsersToSegmentsDTO) (*domain.UsersIds, error) {
 	db, err := s.manager.GetDb()
 	if err != nil {
 		return nil, domain.ErrorWithDataBase
@@ -260,7 +262,10 @@ func (s userInSegmentStorage) AddPersentOfUsersToSegments(ctx context.Context, d
 		return nil, err
 	}
 
-	additionCase := fmt.Sprintf("ORDER BY RANDOM() LIMIT (SELECT ROUND(COUNT(*) * %f / 100) FROM users)", dto.Percent)
+	additionCase := fmt.Sprintf("WHERE %s ORDER BY RANDOM() LIMIT (SELECT ROUND(COUNT(*) * %f / 100) FROM users)",
+		fmt.Sprintf(" id NOT IN(SELECT user_id FROM user_in_segment WHERE segment_id IN%s)", arrayInt64ToStr(segmentIds)),
+		dto.Percent,
+	)
 
 	users, err := s.getUsersWithAdditionCase(ctx, additionCase, 0)
 	if err != nil {

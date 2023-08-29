@@ -76,7 +76,7 @@ func (s userStorage) GetUsersIds(ctx context.Context, dto *domain.LinitOffset) (
 	}
 	return getIdsFromRows(rows, 0, dto.Limit)
 }
-func (s userStorage) GetPersentOfUsersIds(ctx context.Context, dto *domain.UsersGetPercentDTO) (*domain.UsersIds, error) {
+func (s userStorage) GetPercentOfUsersIds(ctx context.Context, dto *domain.UsersGetPercentDTO) (*domain.UsersIds, error) {
 	db, err := s.manager.GetDb()
 	if err != nil {
 		return nil, domain.ErrorWithDataBase

@@ -57,7 +57,7 @@ func (s historyStorage) AddHistory(dto *domain.HistoryAddDTO) {
 	}
 
 	stmt := fmt.Sprintf("INSERT INTO history (user_id, segment_id, action) VALUES %s", makeHistoryRecords(dto.UserIds, segmentIds, dto.Action))
-
+	fmt.Println(stmt)
 	db.Exec(stmt)
 }
 

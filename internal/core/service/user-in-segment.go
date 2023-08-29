@@ -94,16 +94,19 @@ func (s userInSegmentsService) AddUsersToSegments(ctx context.Context, dto *doma
 		}
 
 		err = s.storage.AddUsersToSegments(ctx, dto)
-		errCh <- err
 		if err != nil {
-			go s.historyWriter.AddHistory(
-				&domain.HistoryAddDTO{
-					UserIds:      dto.UserIds,
-					SegmentNames: dto.SegmentNames,
-					Action:       "ADD",
-				},
-			)
+			errCh <- err
+			return
 		}
+
+		go s.historyWriter.AddHistory(
+			&domain.HistoryAddDTO{
+				UserIds:      dto.UserIds,
+				SegmentNames: dto.SegmentNames,
+				Action:       "ADD",
+			},
+		)
+		errCh <- nil
 	}()
 
 	select {
@@ -114,7 +117,7 @@ func (s userInSegmentsService) AddUsersToSegments(ctx context.Context, dto *doma
 	}
 }
 
-func (s userInSegmentsService) AddPersentOfUsersToSegments(ctx context.Context, dto *domain.PersentOfUsersToSegmentsDTO) error {
+func (s userInSegmentsService) AddPercentOfUsersToSegments(ctx context.Context, dto *domain.PercentOfUsersToSegmentsDTO) error {
 	errCh := make(chan error)
 
 	go func() {
@@ -126,17 +129,21 @@ func (s userInSegmentsService) AddPersentOfUsersToSegments(ctx context.Context, 
 			return
 		}
 
-		users, err := s.storage.AddPersentOfUsersToSegments(ctx, dto)
+		users, err := s.storage.AddPercentOfUsersToSegments(ctx, dto)
 		errCh <- err
-		if err == nil {
-			go s.historyWriter.AddHistory(
-				&domain.HistoryAddDTO{
-					UserIds:      users.Ids,
-					SegmentNames: dto.SegmentNames,
-					Action:       "ADD",
-				},
-			)
+		if err != nil {
+			errCh <- err
+			return
 		}
+
+		go s.historyWriter.AddHistory(
+			&domain.HistoryAddDTO{
+				UserIds:      users.Ids,
+				SegmentNames: dto.SegmentNames,
+				Action:       "ADD",
+			},
+		)
+		errCh <- nil
 	}()
 
 	select {
@@ -160,17 +167,20 @@ func (s userInSegmentsService) AddUsersWithLimitOffsetToSegments(ctx context.Con
 		}
 
 		users, err := s.storage.AddUsersWithLimitOffsetToSegments(ctx, dto)
-		errCh <- err
-		if err == nil {
 
-			go s.historyWriter.AddHistory(
-				&domain.HistoryAddDTO{
-					UserIds:      users.Ids,
-					SegmentNames: dto.SegmentNames,
-					Action:       "ADD",
-				},
-			)
+		if err != nil {
+			errCh <- err
+			return
 		}
+
+		go s.historyWriter.AddHistory(
+			&domain.HistoryAddDTO{
+				UserIds:      users.Ids,
+				SegmentNames: dto.SegmentNames,
+				Action:       "ADD",
+			},
+		)
+		errCh <- nil
 	}()
 
 	select {
@@ -199,16 +209,20 @@ func (s userInSegmentsService) DeleteUserFromSegments(ctx context.Context, dto *
 			return
 		}
 		err = s.storage.DeleteUserFromSegments(ctx, dto)
-		if err == nil {
-			go s.historyWriter.AddHistory(
-				&domain.HistoryAddDTO{
-					UserIds:      []int64{dto.UserId},
-					SegmentNames: dto.SegmentNames,
-					Action:       "DEL",
-				},
-			)
+		if err != nil {
+			errCh <- err
+			return
 		}
-		errCh <- err
+
+		go s.historyWriter.AddHistory(
+			&domain.HistoryAddDTO{
+				UserIds:      []int64{dto.UserId},
+				SegmentNames: dto.SegmentNames,
+				Action:       "DEL",
+			},
+		)
+
+		errCh <- nil
 	}()
 
 	select {

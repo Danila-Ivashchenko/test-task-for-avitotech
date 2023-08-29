@@ -120,7 +120,7 @@ func (s userService) GetUsersIds(ctx context.Context, dto *domain.LinitOffset) (
 	}
 }
 
-func (s userService) GetPersentOfUsersIds(ctx context.Context, dto *domain.UsersGetPercentDTO) (*domain.UsersIds, error) {
+func (s userService) GetPercentOfUsersIds(ctx context.Context, dto *domain.UsersGetPercentDTO) (*domain.UsersIds, error) {
 	resultCh := make(chan *domain.UsersIds)
 	errCh := make(chan error)
 
@@ -128,7 +128,7 @@ func (s userService) GetPersentOfUsersIds(ctx context.Context, dto *domain.Users
 		defer close(resultCh)
 		defer close(errCh)
 
-		userIds, err := s.storage.GetPersentOfUsersIds(ctx, dto)
+		userIds, err := s.storage.GetPercentOfUsersIds(ctx, dto)
 		if err != nil {
 			errCh <- err
 			return

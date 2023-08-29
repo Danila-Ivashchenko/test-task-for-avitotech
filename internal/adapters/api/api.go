@@ -42,7 +42,7 @@ func (a api) bind() {
 	a.server.POST("user", a.userHandler.AddUsers)
 	a.server.POST("user/get", a.userHandler.GetUsersIds)
 	a.server.DELETE("user", a.userHandler.DeleteUsers)
-	a.server.POST("user/get/persent", a.userHandler.GetPersentOfUsersIds)
+	a.server.POST("user/get/persent", a.userHandler.GetPercentOfUsersIds)
 
 	a.server.POST("segment", a.segmentHandler.AddSegment)
 	a.server.GET("segment/all", a.segmentHandler.GetAllSegments)
@@ -52,7 +52,7 @@ func (a api) bind() {
 	a.server.POST("user_in_segment/add/one", a.userInSegmentHandler.AddUserToSegments)
 	a.server.POST("user_in_segment/add/many", a.userInSegmentHandler.AddUsersToSegments)
 	a.server.POST("user_in_segment/add/params", a.userInSegmentHandler.AddUsersWithLimitOffsetToSegments)
-	a.server.POST("user_in_segment/add/persent", a.userInSegmentHandler.AddPersentOfUsersToSegments)
+	a.server.POST("user_in_segment/add/persent", a.userInSegmentHandler.AddPercentOfUsersToSegments)
 	a.server.DELETE("user_in_segment", a.userInSegmentHandler.DeleteUserFromSegments)
 	a.server.POST("user_in_segment/get/user", a.userInSegmentHandler.GetUserInSegments)
 	a.server.POST("user_in_segment/get/segment", a.userInSegmentHandler.GetUsersInSegment)

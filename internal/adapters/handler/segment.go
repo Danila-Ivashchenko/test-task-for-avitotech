@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"segment-service/internal/core/domain"
+	"segment-service/internal/lib/validator"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,11 @@ func (h segmentHandler) AddSegment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentName(request.Name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 
@@ -76,6 +82,11 @@ func (h segmentHandler) DeleteSegment(c *gin.Context) {
 	err := c.ShouldBind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
+		return
+	}
+	err = validator.ValidateSegmentName(request.Name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
@@ -131,6 +142,17 @@ func (h segmentHandler) UpdateSegment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: "bad request"})
 		return
 	}
+	err = validator.ValidateSegmentName(request.NewName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+	err = validator.ValidateId(request.Id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, badResponse{Message: err.Error()})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 

@@ -6,7 +6,7 @@ type UserInSegmentHandler interface {
 	AddUserToSegments(c *gin.Context)
 	AddUsersToSegments(c *gin.Context)
 	AddUsersWithLimitOffsetToSegments(c *gin.Context)
-	AddPersentOfUsersToSegments(c *gin.Context)
+	AddPercentOfUsersToSegments(c *gin.Context)
 	DeleteUserFromSegments(c *gin.Context)
 	GetUserInSegments(c *gin.Context)
 	GetUsersInSegment(c *gin.Context)

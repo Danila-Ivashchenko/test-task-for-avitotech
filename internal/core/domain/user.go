@@ -16,7 +16,7 @@ type UsersIds struct {
 }
 
 type UsersGetPercentDTO struct {
-	Percent float32 `json:"persent"`
+	Percent float32 `json:"percent"`
 }
 
 type UserAffected struct {
