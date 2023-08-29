@@ -82,7 +82,7 @@ func GetConfig() *config {
 	}
 
 	user := os.Getenv("POSTGRES_USER")
-	pass := os.Getenv("POSTGRES_PASS")
+	pass := os.Getenv("POSTGRES_PASSWORD")
 	host := os.Getenv("POSTGRES_HOST")
 	port := os.Getenv("POSTGRES_PORT")
 	db := os.Getenv("POSTGRES_DB")
