@@ -9,7 +9,6 @@ import (
 	"segment-service/pkg/config"
 )
 
-
 // @title segment-service
 // @version 1.0
 // @description API Server for work with segments and users
@@ -18,10 +17,6 @@ import (
 // @BasePath /
 
 func main() {
-	err := config.LoadEnv(".env")
-	if err != nil {
-		panic(err)
-	}
 	cfg := config.GetConfig()
 	psqlClinet := client.NewPostgresClient(cfg)
 	userStorage := storage.NewUserStorage(psqlClinet)
@@ -51,7 +46,7 @@ func main() {
 		userInSegmentHandler,
 		historyHandler,
 	)
-	err = api.Run()
+	err := api.Run()
 	if err != nil {
 		panic("fail to run the server")
 	}
