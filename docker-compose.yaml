@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mongo:latest
+    container_name: segment-storage
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+      POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE}
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ./mongo:/docker-entrypoint-initdb.d
+
+  api:
+    build: ./app
+    container_name: jwt-api
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+      POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE}
+      ENV: ${ENV}
+      HTTP_PORT: ${HTTP_PORT}
+      HTTP_HOST: ${HTTP_HOST}
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
