@@ -17,10 +17,10 @@ services:
       - ./mongo:/docker-entrypoint-initdb.d
 
   api:
-    build: ./app
-    container_name: jwt-api
+    build: .
+    container_name: segment-api
     environment:
-      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_HOST: db
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_USER: ${POSTGRES_USER}
