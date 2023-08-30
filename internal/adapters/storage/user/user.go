@@ -1,16 +1,17 @@
-package storage
+package user
 
 import (
 	"context"
 	"fmt"
+	"segment-service/internal/adapters/storage/lib"
 	"segment-service/internal/core/domain"
 )
 
 type userStorage struct {
-	manager psqlManager
+	manager lib.PsqlManager
 }
 
-func NewUserStorage(m psqlManager) *userStorage {
+func NewUserStorage(m lib.PsqlManager) *userStorage {
 	return &userStorage{
 		manager: m,
 	}
@@ -74,7 +75,7 @@ func (s userStorage) GetUsersIds(ctx context.Context, dto *domain.LinitOffset) (
 	if err != nil {
 		return nil, err
 	}
-	return getIdsFromRows(rows, 0, dto.Limit)
+	return lib.GetIdsFromRows(rows, 0, dto.Limit)
 }
 func (s userStorage) GetPercentOfUsersIds(ctx context.Context, dto *domain.UsersGetPercentDTO) (*domain.UsersIds, error) {
 	db, err := s.manager.GetDb()
@@ -88,7 +89,7 @@ func (s userStorage) GetPercentOfUsersIds(ctx context.Context, dto *domain.Users
 	if err != nil {
 		return nil, err
 	}
-	return getIdsFromRows(rows, 0, 0)
+	return lib.GetIdsFromRows(rows, 0, 0)
 
 }
 
@@ -103,13 +104,13 @@ func (s userStorage) DeleteUsers(ctx context.Context, dto *domain.UsersIds) (*do
 		return nil, err
 	}
 
-	stmt := "DELETE FROM history WHERE user_id IN" + arrayInt64ToStr(dto.Ids)
+	stmt := "DELETE FROM history WHERE user_id IN" + lib.ArrayInt64ToStr(dto.Ids)
 	tx.ExecContext(ctx, stmt)
 
-	stmt = "DELETE FROM user_in_segment WHERE user_id IN" + arrayInt64ToStr(dto.Ids)
+	stmt = "DELETE FROM user_in_segment WHERE user_id IN" + lib.ArrayInt64ToStr(dto.Ids)
 	tx.ExecContext(ctx, stmt)
 
-	stmt = "DELETE FROM users WHERE id IN" + arrayInt64ToStr(dto.Ids)
+	stmt = "DELETE FROM users WHERE id IN" + lib.ArrayInt64ToStr(dto.Ids)
 	result, err := tx.ExecContext(ctx, stmt)
 	if err != nil {
 		return nil, err
@@ -133,13 +134,13 @@ func (s userStorage) CheckUserExists(ctx context.Context, dto *domain.UsersIds) 
 	}
 	defer db.Close()
 
-	stmt := "SELECT id FROM users WHERE id IN" + arrayInt64ToStr(dto.Ids)
+	stmt := "SELECT id FROM users WHERE id IN" + lib.ArrayInt64ToStr(dto.Ids)
 
 	rows, err := db.QueryxContext(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
-	return getIdsFromRows(rows, 0, len(dto.Ids))
+	return lib.GetIdsFromRows(rows, 0, len(dto.Ids))
 }
 
 func arrayToValues(arr []int64) string {

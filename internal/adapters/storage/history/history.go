@@ -1,16 +1,17 @@
-package storage
+package history
 
 import (
 	"context"
 	"fmt"
+	"segment-service/internal/adapters/storage/lib"
 	"segment-service/internal/core/domain"
 )
 
 type historyStorage struct {
-	manager psqlManager
+	manager lib.PsqlManager
 }
 
-func NewHistoryStorage(m psqlManager) *historyStorage {
+func NewHistoryStorage(m lib.PsqlManager) *historyStorage {
 	return &historyStorage{
 		manager: m,
 	}
@@ -28,7 +29,7 @@ func (s historyStorage) getSegmentIds(dto *domain.SegmentNames) ([]int64, error)
 		segmentIds = make([]int64, 0, len(dto.Names))
 	)
 
-	stmt := fmt.Sprintf("SELECT id FROM segments WHERE name IN%s", arrayStrToStr(dto.Names))
+	stmt := fmt.Sprintf("SELECT id FROM segments WHERE name IN%s", lib.ArrayStrToStr(dto.Names))
 	rows, err := db.Queryx(stmt)
 	if err != nil {
 		return segmentIds, domain.ErrorNoSuchSegments
@@ -56,7 +57,7 @@ func (s historyStorage) AddHistory(dto *domain.HistoryAddDTO) {
 		return
 	}
 
-	stmt := fmt.Sprintf("INSERT INTO history (user_id, segment_id, action) VALUES %s", makeHistoryRecords(dto.UserIds, segmentIds, dto.Action))
+	stmt := fmt.Sprintf("INSERT INTO history (user_id, segment_id, action) VALUES %s", lib.MakeHistoryRecords(dto.UserIds, segmentIds, dto.Action))
 	fmt.Println(stmt)
 	db.Exec(stmt)
 }

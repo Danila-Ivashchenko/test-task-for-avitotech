@@ -1,4 +1,4 @@
-package storage
+package lib
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type psqlManager interface {
+type PsqlManager interface {
 	GetDb() (*sqlx.DB, error)
 }
 
-func arrayInt64ToStr(arr []int64) string {
+func ArrayInt64ToStr(arr []int64) string {
 	result := "("
 
 	for i := range arr {
@@ -24,7 +24,7 @@ func arrayInt64ToStr(arr []int64) string {
 	return result + ")"
 }
 
-func arrayStrToStr(arr []string) string {
+func ArrayStrToStr(arr []string) string {
 	result := "("
 
 	for i := range arr {
@@ -37,7 +37,7 @@ func arrayStrToStr(arr []string) string {
 	return result + ")"
 }
 
-func makeUserInSegmentPairs(userId int64, segmentIds []int64) string {
+func MakeUserInSegmentPairs(userId int64, segmentIds []int64) string {
 	result := ""
 	for i := range segmentIds {
 		if i == 0 {
@@ -49,7 +49,7 @@ func makeUserInSegmentPairs(userId int64, segmentIds []int64) string {
 	return result
 }
 
-func mergeUsersAndSegments(users, segments []int64) string {
+func MergeUsersAndSegments(users, segments []int64) string {
 	result := ""
 	for i, user := range users {
 		if i > 0 {
@@ -66,7 +66,7 @@ func mergeUsersAndSegments(users, segments []int64) string {
 	return result
 }
 
-func makeHistoryRecords(users, segments []int64, action string) string {
+func MakeHistoryRecords(users, segments []int64, action string) string {
 	result := ""
 	for i, user := range users {
 		if i > 0 {
@@ -84,7 +84,7 @@ func makeHistoryRecords(users, segments []int64, action string) string {
 	return result
 }
 
-func getIdsFromRows(rows *sqlx.Rows, size, cap int) (*domain.UsersIds, error) {
+func GetIdsFromRows(rows *sqlx.Rows, size, cap int) (*domain.UsersIds, error) {
 	var id int64
 	ids := make([]int64, size, cap)
 	for rows.Next() {

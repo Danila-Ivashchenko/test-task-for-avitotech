@@ -1,16 +1,17 @@
-package storage
+package user_in_segment
 
 import (
 	"context"
 	"fmt"
+	"segment-service/internal/adapters/storage/lib"
 	"segment-service/internal/core/domain"
 )
 
 type userInSegmentStorage struct {
-	manager psqlManager
+	manager lib.PsqlManager
 }
 
-func NewUserInSegmentStorage(m psqlManager) *userInSegmentStorage {
+func NewUserInSegmentStorage(m lib.PsqlManager) *userInSegmentStorage {
 	return &userInSegmentStorage{
 		manager: m,
 	}
@@ -27,7 +28,7 @@ func (s userInSegmentStorage) getSegmentIds(ctx context.Context, dto *domain.Seg
 		segmentIds = make([]int64, 0, len(dto.Names))
 	)
 
-	stmt := fmt.Sprintf("SELECT id FROM segments WHERE name IN%s", arrayStrToStr(dto.Names))
+	stmt := fmt.Sprintf("SELECT id FROM segments WHERE name IN%s", lib.ArrayStrToStr(dto.Names))
 	rows, err := db.QueryxContext(ctx, stmt)
 	if err != nil {
 		return segmentIds, domain.ErrorNoSuchSegments
@@ -55,7 +56,7 @@ func (s userInSegmentStorage) AddUserToSegments(ctx context.Context, dto *domain
 		return err
 	}
 
-	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", makeUserInSegmentPairs(dto.UserId, segmentIds))
+	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", lib.MakeUserInSegmentPairs(dto.UserId, segmentIds))
 
 	_, err = db.ExecContext(ctx, stmt)
 	if err != nil {
@@ -77,7 +78,7 @@ func (s userInSegmentStorage) AddUsersToSegments(ctx context.Context, dto *domai
 		return err
 	}
 
-	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", mergeUsersAndSegments(dto.UserIds, segmentIds))
+	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", lib.MergeUsersAndSegments(dto.UserIds, segmentIds))
 
 	_, err = db.ExecContext(ctx, stmt)
 	if err != nil {
@@ -93,7 +94,7 @@ func (s userInSegmentStorage) checkUserInSegments(ctx context.Context, dto *doma
 	}
 	defer db.Close()
 
-	stmt := fmt.Sprintf(`SELECT COUNT(*) FROM user_in_segment WHERE user_id = %d AND segment_id IN%s`, dto.UserId, arrayInt64ToStr(dto.SegmentIds))
+	stmt := fmt.Sprintf(`SELECT COUNT(*) FROM user_in_segment WHERE user_id = %d AND segment_id IN%s`, dto.UserId, lib.ArrayInt64ToStr(dto.SegmentIds))
 	var (
 		idsLen int64
 	)
@@ -123,7 +124,7 @@ func (s userInSegmentStorage) DeleteUserFromSegments(ctx context.Context, dto *d
 		return err
 	}
 
-	stmt := fmt.Sprintf("DELETE FROM user_in_segment WHERE user_id = %d AND segment_id IN%s", dto.UserId, arrayInt64ToStr(segmentIds))
+	stmt := fmt.Sprintf("DELETE FROM user_in_segment WHERE user_id = %d AND segment_id IN%s", dto.UserId, lib.ArrayInt64ToStr(segmentIds))
 
 	_, err = db.ExecContext(ctx, stmt)
 	if err != nil {
@@ -203,8 +204,8 @@ func (s userInSegmentStorage) AddUsersWithLimitOffsetToSegments(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
-	
-	additionCase := fmt.Sprintf(" WHERE id NOT IN(SELECT user_id FROM user_in_segment WHERE segment_id IN%s)", arrayInt64ToStr(segmentIds))
+
+	additionCase := fmt.Sprintf(" WHERE id NOT IN(SELECT user_id FROM user_in_segment WHERE segment_id IN%s)", lib.ArrayInt64ToStr(segmentIds))
 	if dto.Rand {
 		additionCase += " ORDER BY RANDOM()"
 	}
@@ -216,7 +217,7 @@ func (s userInSegmentStorage) AddUsersWithLimitOffsetToSegments(ctx context.Cont
 	}
 
 	users, err := s.getUsersWithAdditionCase(ctx, additionCase, dto.Limit)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +225,7 @@ func (s userInSegmentStorage) AddUsersWithLimitOffsetToSegments(ctx context.Cont
 		return nil, domain.ErrorNoUsers
 	}
 	fmt.Println(users.Ids)
-	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", mergeUsersAndSegments(users.Ids, segmentIds))
+	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", lib.MergeUsersAndSegments(users.Ids, segmentIds))
 
 	_, err = db.ExecContext(ctx, stmt)
 	if err != nil {
@@ -247,7 +248,7 @@ func (s userInSegmentStorage) getUsersWithAdditionCase(ctx context.Context, addi
 		return nil, err
 	}
 
-	return getIdsFromRows(rows, 0, cap)
+	return lib.GetIdsFromRows(rows, 0, cap)
 }
 
 func (s userInSegmentStorage) AddPercentOfUsersToSegments(ctx context.Context, dto *domain.PercentOfUsersToSegmentsDTO) (*domain.UsersIds, error) {
@@ -263,7 +264,7 @@ func (s userInSegmentStorage) AddPercentOfUsersToSegments(ctx context.Context, d
 	}
 
 	additionCase := fmt.Sprintf("WHERE %s ORDER BY RANDOM() LIMIT (SELECT ROUND(COUNT(*) * %f / 100) FROM users)",
-		fmt.Sprintf(" id NOT IN(SELECT user_id FROM user_in_segment WHERE segment_id IN%s)", arrayInt64ToStr(segmentIds)),
+		fmt.Sprintf(" id NOT IN(SELECT user_id FROM user_in_segment WHERE segment_id IN%s)", lib.ArrayInt64ToStr(segmentIds)),
 		dto.Percent,
 	)
 
@@ -275,7 +276,7 @@ func (s userInSegmentStorage) AddPercentOfUsersToSegments(ctx context.Context, d
 		return nil, domain.ErrorNoUsers
 	}
 
-	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", mergeUsersAndSegments(users.Ids, segmentIds))
+	stmt := fmt.Sprintf("INSERT INTO user_in_segment (user_id, segment_id) VALUES %s", lib.MergeUsersAndSegments(users.Ids, segmentIds))
 
 	_, err = db.ExecContext(ctx, stmt)
 	if err != nil {

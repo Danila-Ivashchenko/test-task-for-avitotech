@@ -1,16 +1,17 @@
-package storage
+package segment
 
 import (
 	"context"
 	"fmt"
+	"segment-service/internal/adapters/storage/lib"
 	"segment-service/internal/core/domain"
 )
 
 type segmentStorage struct {
-	manager psqlManager
+	manager lib.PsqlManager
 }
 
-func NewSegmentStorage(m psqlManager) *segmentStorage {
+func NewSegmentStorage(m lib.PsqlManager) *segmentStorage {
 	return &segmentStorage{
 		manager: m,
 	}
@@ -160,7 +161,7 @@ func (s segmentStorage) CheckSegmentsExists(ctx context.Context, dto *domain.Seg
 	}
 	defer db.Close()
 
-	segments := arrayStrToStr(dto.Names)
+	segments := lib.ArrayStrToStr(dto.Names)
 
 	stmt := fmt.Sprintf("SELECT name FROM segments WHERE name IN%s ORDER BY name DESC", segments)
 
@@ -190,7 +191,7 @@ func (s segmentStorage) CheckSegmentsExists(ctx context.Context, dto *domain.Seg
 	}
 
 	if lenght > 0 {
-		return fmt.Errorf("%s: %s", domain.ErrorNoSuchSegments, arrayStrToStr(dto.Names[:lenght]))
+		return fmt.Errorf("%s: %s", domain.ErrorNoSuchSegments, lib.ArrayStrToStr(dto.Names[:lenght]))
 	}
 
 	return nil
@@ -208,7 +209,7 @@ func (s segmentStorage) GetSegmentsIds(ctx context.Context, dto *domain.SegmentN
 		segmentIds = make([]int64, 0, len(dto.Names))
 	)
 
-	stmt := fmt.Sprintf("SELECT id FROM segments WHERE name IN%s", arrayStrToStr(dto.Names))
+	stmt := fmt.Sprintf("SELECT id FROM segments WHERE name IN%s", lib.ArrayStrToStr(dto.Names))
 	rows, err := db.QueryxContext(ctx, stmt)
 	if err != nil {
 		return nil, domain.ErrorNoSuchSegments
