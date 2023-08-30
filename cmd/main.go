@@ -3,8 +3,16 @@ package main
 import (
 	"segment-service/internal/adapters/api"
 	"segment-service/internal/adapters/handler"
-	"segment-service/internal/adapters/storage"
-	"segment-service/internal/core/service"
+	history_storage "segment-service/internal/adapters/storage/history"
+	segment_storage "segment-service/internal/adapters/storage/segment"
+	user_storage "segment-service/internal/adapters/storage/user"
+	user_in_segment_storage "segment-service/internal/adapters/storage/user_in_segment"
+
+	history_service "segment-service/internal/core/service/history"
+	segment_service "segment-service/internal/core/service/segment"
+	user_service "segment-service/internal/core/service/user"
+	user_in_segment_service "segment-service/internal/core/service/user_in_segment"
+
 	"segment-service/pkg/client"
 	"segment-service/pkg/config"
 )
@@ -20,20 +28,20 @@ func main() {
 	// _ = config.LoadEnv(".env")
 	cfg := config.GetConfig()
 	psqlClinet := client.NewPostgresClient(cfg)
-	userStorage := storage.NewUserStorage(psqlClinet)
-	userService := service.NewUserService(userStorage)
+	userStorage := user_storage.NewUserStorage(psqlClinet)
+	userService := user_service.NewUserService(userStorage)
 	userHandler := handler.NewUserHandler(userService)
 
-	segmentStorage := storage.NewSegmentStorage(psqlClinet)
-	segmentService := service.NewSegmentService(segmentStorage)
+	segmentStorage := segment_storage.NewSegmentStorage(psqlClinet)
+	segmentService := segment_service.NewSegmentService(segmentStorage)
 	segmenthandler := handler.NewSegmentHandler(segmentService)
 
-	historyStorage := storage.NewHistoryStorage(psqlClinet)
-	historyService := service.NewHistoryService(historyStorage, cfg)
+	historyStorage := history_storage.NewHistoryStorage(psqlClinet)
+	historyService := history_service.NewHistoryService(historyStorage, cfg)
 	historyHandler := handler.NewHistoryHandler(historyService)
 
-	userInSegmentStorage := storage.NewUserInSegmentStorage(psqlClinet)
-	userInSegmentService := service.NewUserInSegmentsService(
+	userInSegmentStorage := user_in_segment_storage.NewUserInSegmentStorage(psqlClinet)
+	userInSegmentService := user_in_segment_service.NewUserInSegmentsService(
 		userInSegmentStorage,
 		userService,
 		segmentService,
