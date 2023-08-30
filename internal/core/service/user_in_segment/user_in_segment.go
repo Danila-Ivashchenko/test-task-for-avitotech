@@ -1,9 +1,10 @@
-package service
+package user_in_segment
 
 import (
 	"context"
 	"segment-service/internal/core/domain"
 	"segment-service/internal/core/ports/storage"
+	"segment-service/internal/lib/validator"
 )
 
 type userOperator interface {
@@ -39,8 +40,12 @@ func (s userInSegmentsService) AddUserToSegments(ctx context.Context, dto *domai
 
 	go func() {
 		defer close(errCh)
-
-		_, err := s.userOperator.CheckUserExists(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
+		err := validator.ValidateId(dto.UserId)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		_, err = s.userOperator.CheckUserExists(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
 		if err != nil {
 			errCh <- domain.ErrorNoSuchUser
 			return
