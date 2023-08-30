@@ -50,7 +50,13 @@ func (s historyService) GetHistoryOfUser(ctx context.Context, dto *domain.Histor
 			errCh <- domain.ErrorNoHistoryResult
 			return
 		}
-
+		if _, err := os.Stat(s.dir); err != nil {
+			err = os.Mkdir(s.dir, 0777)
+			if err != nil {
+				errCh <- err
+				return
+			}
+		}
 		filename := strconv.Itoa(int(dto.UserId)) + "." + strconv.Itoa(dto.Month) + "." + strconv.Itoa(dto.Year) + ".csv"
 		path := fmt.Sprintf("./%s/%s", s.dir, filename)
 		if _, err := os.Stat(path); err == nil {

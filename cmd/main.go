@@ -25,7 +25,10 @@ import (
 // @BasePath /
 
 func main() {
-	// _ = config.LoadEnv(".env")
+	// err := config.LoadEnv(".env")
+	// if err != nil {
+	// 	panic(err)
+	// }
 	cfg := config.GetConfig()
 	psqlClinet := client.NewPostgresClient(cfg)
 	userStorage := user_storage.NewUserStorage(psqlClinet)
