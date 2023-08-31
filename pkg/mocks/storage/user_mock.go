@@ -50,19 +50,18 @@ func (mr *MockUserStoragerMockRecorder) AddUsers(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUsers", reflect.TypeOf((*MockUserStorager)(nil).AddUsers), arg0, arg1)
 }
 
-// CheckUserExists mocks base method.
-func (m *MockUserStorager) CheckUserExists(arg0 context.Context, arg1 *domain.UsersIds) (*domain.UsersIds, error) {
+// CheckUsersExist mocks base method.
+func (m *MockUserStorager) CheckUsersExist(arg0 context.Context, arg1 *domain.UsersIds) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckUserExists", arg0, arg1)
-	ret0, _ := ret[0].(*domain.UsersIds)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "CheckUsersExist", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// CheckUserExists indicates an expected call of CheckUserExists.
-func (mr *MockUserStoragerMockRecorder) CheckUserExists(arg0, arg1 interface{}) *gomock.Call {
+// CheckUsersExist indicates an expected call of CheckUsersExist.
+func (mr *MockUserStoragerMockRecorder) CheckUsersExist(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserExists", reflect.TypeOf((*MockUserStorager)(nil).CheckUserExists), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUsersExist", reflect.TypeOf((*MockUserStorager)(nil).CheckUsersExist), arg0, arg1)
 }
 
 // DeleteUsers mocks base method.
