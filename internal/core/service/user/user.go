@@ -42,29 +42,20 @@ func (s userService) AddUsers(ctx context.Context, dto *domain.UsersIds) (*domai
 	}
 }
 
-func (s userService) CheckUserExists(ctx context.Context, dto *domain.UsersIds) (*domain.UsersIds, error) {
-	resultCh := make(chan *domain.UsersIds)
+func (s userService) CheckUsersExist(ctx context.Context, dto *domain.UsersIds) error {
 	errCh := make(chan error)
 
 	go func() {
-		defer close(resultCh)
 		defer close(errCh)
 
-		result, err := s.storage.CheckUserExists(ctx, dto)
-		if err != nil {
-			errCh <- err
-			return
-		}
-		resultCh <- result
+		errCh <- s.storage.CheckUsersExist(ctx, dto)
 	}()
 
 	select {
 	case <-ctx.Done():
-		return nil, domain.ErrorTimeOut
+		return domain.ErrorTimeOut
 	case err := <-errCh:
-		return nil, err
-	case result := <-resultCh:
-		return result, nil
+		return err
 	}
 }
 

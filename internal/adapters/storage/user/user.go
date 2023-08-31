@@ -127,10 +127,10 @@ func (s userStorage) DeleteUsers(ctx context.Context, dto *domain.UsersIds) (*do
 	}, err
 }
 
-func (s userStorage) CheckUserExists(ctx context.Context, dto *domain.UsersIds) (*domain.UsersIds, error) {
+func (s userStorage) CheckUsersExist(ctx context.Context, dto *domain.UsersIds) error {
 	db, err := s.manager.GetDb()
 	if err != nil {
-		return nil, domain.ErrorWithDataBase
+		return domain.ErrorWithDataBase
 	}
 	defer db.Close()
 
@@ -138,9 +138,13 @@ func (s userStorage) CheckUserExists(ctx context.Context, dto *domain.UsersIds) 
 
 	rows, err := db.QueryxContext(ctx, stmt)
 	if err != nil {
-		return nil, err
+		return domain.ErrorNoSuchUsers
 	}
-	return lib.GetIdsFromRows(rows, 0, len(dto.Ids))
+	users, err := lib.GetIdsFromRows(rows, 0, len(dto.Ids))
+	if len(users.Ids) != len(dto.Ids) {
+		return domain.ErrorNoSuchUsers
+	}
+	return nil
 }
 
 func arrayToValues(arr []int64) string {

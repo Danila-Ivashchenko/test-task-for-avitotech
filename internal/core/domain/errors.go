@@ -10,6 +10,7 @@ var (
 	ErrorNoUsers      = errors.New("no users")
 
 	ErrorNoSuchUser = errors.New("no such user")
+	ErrorNoSuchUsers = errors.New("no such users")
 
 	ErrorNoSuchSegment         = errors.New("no such segment")
 	ErrorInvalidName           = errors.New("invalid name")

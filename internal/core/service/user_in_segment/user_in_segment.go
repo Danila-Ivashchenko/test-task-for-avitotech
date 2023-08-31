@@ -8,7 +8,7 @@ import (
 )
 
 type userOperator interface {
-	CheckUserExists(context.Context, *domain.UsersIds) (*domain.UsersIds, error)
+	CheckUsersExist(context.Context, *domain.UsersIds) error
 }
 
 type segmentChecker interface {
@@ -45,9 +45,9 @@ func (s userInSegmentsService) AddUserToSegments(ctx context.Context, dto *domai
 			errCh <- err
 			return
 		}
-		_, err = s.userOperator.CheckUserExists(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
+		err = s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUser
+			errCh <- err
 			return
 		}
 
@@ -62,7 +62,7 @@ func (s userInSegmentsService) AddUserToSegments(ctx context.Context, dto *domai
 			errCh <- err
 			return
 		}
-		go s.historyWriter.AddHistory(
+		s.historyWriter.AddHistory(
 			&domain.HistoryAddDTO{
 				UserIds:      []int64{dto.UserId},
 				SegmentNames: dto.SegmentNames,
@@ -85,16 +85,20 @@ func (s userInSegmentsService) AddUsersToSegments(ctx context.Context, dto *doma
 
 	go func() {
 		defer close(errCh)
-
-		_, err := s.userOperator.CheckUserExists(ctx, &domain.UsersIds{Ids: dto.UserIds})
+		err := validator.ValidateIds(dto.UserIds)
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUser
+			errCh <- err
+			return
+		}
+		err = s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: dto.UserIds})
+		if err != nil {
+			errCh <- domain.ErrorNoSuchUsers
 			return
 		}
 
 		err = s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: dto.SegmentNames})
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUser
+			errCh <- err
 			return
 		}
 
@@ -104,7 +108,7 @@ func (s userInSegmentsService) AddUsersToSegments(ctx context.Context, dto *doma
 			return
 		}
 
-		go s.historyWriter.AddHistory(
+		s.historyWriter.AddHistory(
 			&domain.HistoryAddDTO{
 				UserIds:      dto.UserIds,
 				SegmentNames: dto.SegmentNames,
@@ -130,7 +134,7 @@ func (s userInSegmentsService) AddPercentOfUsersToSegments(ctx context.Context, 
 
 		err := s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: dto.SegmentNames})
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUser
+			errCh <- domain.ErrorNoSuchUsers
 			return
 		}
 
@@ -141,7 +145,7 @@ func (s userInSegmentsService) AddPercentOfUsersToSegments(ctx context.Context, 
 			return
 		}
 
-		go s.historyWriter.AddHistory(
+		s.historyWriter.AddHistory(
 			&domain.HistoryAddDTO{
 				UserIds:      users.Ids,
 				SegmentNames: dto.SegmentNames,
@@ -178,7 +182,7 @@ func (s userInSegmentsService) AddUsersWithLimitOffsetToSegments(ctx context.Con
 			return
 		}
 
-		go s.historyWriter.AddHistory(
+		s.historyWriter.AddHistory(
 			&domain.HistoryAddDTO{
 				UserIds:      users.Ids,
 				SegmentNames: dto.SegmentNames,
@@ -202,9 +206,9 @@ func (s userInSegmentsService) DeleteUserFromSegments(ctx context.Context, dto *
 	go func() {
 		defer close(errCh)
 
-		_, err := s.userOperator.CheckUserExists(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
+		err := s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUser
+			errCh <- domain.ErrorNoSuchUsers
 			return
 		}
 
@@ -219,7 +223,7 @@ func (s userInSegmentsService) DeleteUserFromSegments(ctx context.Context, dto *
 			return
 		}
 
-		go s.historyWriter.AddHistory(
+		s.historyWriter.AddHistory(
 			&domain.HistoryAddDTO{
 				UserIds:      []int64{dto.UserId},
 				SegmentNames: dto.SegmentNames,
@@ -246,9 +250,9 @@ func (s userInSegmentsService) GetUserInSegments(ctx context.Context, dto *domai
 		defer close(resultCh)
 		defer close(errCh)
 
-		_, err := s.userOperator.CheckUserExists(ctx, &domain.UsersIds{Ids: []int64{dto.Id}})
+		err := s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.Id}})
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUser
+			errCh <- domain.ErrorNoSuchUsers
 			return
 		}
 
