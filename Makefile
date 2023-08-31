@@ -11,7 +11,9 @@ clean:
 	@docker rm segment-storage;
 	@docker rmi test-task-for-avitotech-api;
 gen:
-	mockgen -source=internal/core/ports/storage/user.go -destination=internal/mocks/storage/user_mock.go
-	mockgen -source=internal/core/ports/storage/segment.go -destination=internal/mocks/storage/segment_mock.go
-	mockgen -source=internal/core/ports/storage/user-in-segment.go -destination=internal/mocks/storage/user_in_segment_mock.go
-	mockgen -source=internal/core/ports/storage/history.go -destination=internal/mocks/storage/history_mock.go
+	mockgen -source=internal/core/ports/storage/user.go -destination=pkg/mocks/storage/user_mock.go
+	mockgen -source=internal/core/ports/storage/segment.go -destination=pkg/mocks/storage/segment_mock.go
+	mockgen -source=internal/core/ports/storage/user-in-segment.go -destination=pkg/mocks/storage/user_in_segment_mock.go
+	mockgen -source=internal/core/ports/storage/history.go -destination=pkg/mocks/storage/history_mock.go
+test:
+	@go test ./...
