@@ -323,9 +323,9 @@
                 }
             }
         },
-        "/user/get/persent": {
+        "/user/get/percent": {
             "post": {
-                "description": "return persent of random users",
+                "description": "return percent of random users",
                 "consumes": [
                     "application/json"
                 ],
@@ -335,11 +335,11 @@
                 "tags": [
                     "user"
                 ],
-                "summary": "get persent of users",
-                "operationId": "get-persent-users",
+                "summary": "get percent of users",
+                "operationId": "get-percent-users",
                 "parameters": [
                     {
-                        "description": "persent of users",
+                        "description": "percent of users",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -528,9 +528,9 @@
                 }
             }
         },
-        "/user_in_segment/add/persent": {
+        "/user_in_segment/add/percent": {
             "post": {
-                "description": "bind users by persent and segments by names",
+                "description": "bind users by percent and segments by names",
                 "consumes": [
                     "application/json"
                 ],
@@ -541,15 +541,15 @@
                     "user-in-segment"
                 ],
                 "summary": "bind users and segments",
-                "operationId": "add-users-persent-to-segments",
+                "operationId": "add-users-percent-to-segments",
                 "parameters": [
                     {
-                        "description": "persent of users and segments names",
+                        "description": "percent of users and segments names",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.PersentOfUsersToSegmentsDTO"
+                            "$ref": "#/definitions/domain.PercentOfUsersToSegmentsDTO"
                         }
                     }
                 ],
@@ -689,10 +689,10 @@
                 }
             }
         },
-        "domain.PersentOfUsersToSegmentsDTO": {
+        "domain.PercentOfUsersToSegmentsDTO": {
             "type": "object",
             "properties": {
-                "persent": {
+                "percent": {
                     "type": "number"
                 },
                 "segment_names": {
@@ -791,7 +791,7 @@
         "domain.UsersGetPercentDTO": {
             "type": "object",
             "properties": {
-                "persent": {
+                "percent": {
                     "type": "number"
                 }
             }

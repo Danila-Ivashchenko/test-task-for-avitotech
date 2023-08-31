@@ -23,9 +23,9 @@ definitions:
       random:
         type: boolean
     type: object
-  domain.PersentOfUsersToSegmentsDTO:
+  domain.PercentOfUsersToSegmentsDTO:
     properties:
-      persent:
+      percent:
         type: number
       segment_names:
         items:
@@ -88,7 +88,7 @@ definitions:
     type: object
   domain.UsersGetPercentDTO:
     properties:
-      persent:
+      percent:
         type: number
     type: object
   domain.UsersIds:
@@ -347,14 +347,14 @@ paths:
       summary: get users with limit offset
       tags:
       - user
-  /user/get/persent:
+  /user/get/percent:
     post:
       consumes:
       - application/json
-      description: return persent of random users
-      operationId: get-persent-users
+      description: return percent of random users
+      operationId: get-percent-users
       parameters:
-      - description: persent of users
+      - description: percent of users
         in: body
         name: input
         required: true
@@ -371,7 +371,7 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handler.badResponse'
-      summary: get persent of users
+      summary: get percent of users
       tags:
       - user
   /user_in_segment:
@@ -482,19 +482,19 @@ paths:
       summary: bind users and segments
       tags:
       - user-in-segment
-  /user_in_segment/add/persent:
+  /user_in_segment/add/percent:
     post:
       consumes:
       - application/json
-      description: bind users by persent and segments by names
-      operationId: add-users-persent-to-segments
+      description: bind users by percent and segments by names
+      operationId: add-users-percent-to-segments
       parameters:
-      - description: persent of users and segments names
+      - description: percent of users and segments names
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/domain.PersentOfUsersToSegmentsDTO'
+          $ref: '#/definitions/domain.PercentOfUsersToSegmentsDTO'
       produces:
       - application/json
       responses:
