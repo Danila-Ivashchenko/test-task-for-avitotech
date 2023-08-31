@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 	"segment-service/internal/core/domain"
-	"segment-service/internal/lib/validator"
+	// "segment-service/internal/lib/validator"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,11 +48,6 @@ func (h userHandler) AddUsers(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
 		return
 	}
-	err = validator.ValidateIds(request.Ids)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
-		return
-	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
@@ -84,11 +79,7 @@ func (h userHandler) DeleteUsers(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
 		return
 	}
-	err = validator.ValidateIds(request.Ids)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
-		return
-	}
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
 		return
@@ -127,11 +118,6 @@ func (h userHandler) GetPercentOfUsersIds(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
 		return
 	}
-	err = validator.ValidatePercent(request.Percent)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
-		return
-	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
@@ -162,11 +148,7 @@ func (h userHandler) GetUsersIds(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
 		return
 	}
-	err = validator.ValidateLimitOffset(request.Limit, request.Offset)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, badResponse{Message: err.Error()})
-		return
-	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), h.timeLimit)
 	defer cancel()
 

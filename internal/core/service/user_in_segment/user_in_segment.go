@@ -45,6 +45,11 @@ func (s userInSegmentsService) AddUserToSegments(ctx context.Context, dto *domai
 			errCh <- err
 			return
 		}
+		err = validator.ValidateSegmentNames(dto.SegmentNames)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		err = s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
 		if err != nil {
 			errCh <- err
@@ -90,6 +95,11 @@ func (s userInSegmentsService) AddUsersToSegments(ctx context.Context, dto *doma
 			errCh <- err
 			return
 		}
+		err = validator.ValidateSegmentNames(dto.SegmentNames)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		err = s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: dto.UserIds})
 		if err != nil {
 			errCh <- domain.ErrorNoSuchUsers
@@ -131,10 +141,19 @@ func (s userInSegmentsService) AddPercentOfUsersToSegments(ctx context.Context, 
 
 	go func() {
 		defer close(errCh)
-
-		err := s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: dto.SegmentNames})
+		err := validator.ValidatePercent(dto.Percent)
 		if err != nil {
-			errCh <- domain.ErrorNoSuchUsers
+			errCh <- err
+			return
+		}
+		err = validator.ValidateSegmentNames(dto.SegmentNames)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		err = s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: dto.SegmentNames})
+		if err != nil {
+			errCh <- err
 			return
 		}
 
@@ -168,8 +187,17 @@ func (s userInSegmentsService) AddUsersWithLimitOffsetToSegments(ctx context.Con
 
 	go func() {
 		defer close(errCh)
-
-		err := s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: dto.SegmentNames})
+		err := validator.ValidateLimitOffset(dto.Limit, dto.Offset)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		err = validator.ValidateSegmentNames(dto.SegmentNames)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		err = s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: dto.SegmentNames})
 		if err != nil {
 			errCh <- err
 			return
@@ -205,8 +233,18 @@ func (s userInSegmentsService) DeleteUserFromSegments(ctx context.Context, dto *
 
 	go func() {
 		defer close(errCh)
+		err := validator.ValidateId(dto.UserId)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		err = validator.ValidateSegmentNames(dto.SegmentNames)
+		if err != nil {
+			errCh <- err
+			return
+		}
 
-		err := s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
+		err = s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.UserId}})
 		if err != nil {
 			errCh <- domain.ErrorNoSuchUsers
 			return
@@ -250,7 +288,13 @@ func (s userInSegmentsService) GetUserInSegments(ctx context.Context, dto *domai
 		defer close(resultCh)
 		defer close(errCh)
 
-		err := s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.Id}})
+		err := validator.ValidateId(dto.Id)
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		err = s.userOperator.CheckUsersExist(ctx, &domain.UsersIds{Ids: []int64{dto.Id}})
 		if err != nil {
 			errCh <- domain.ErrorNoSuchUsers
 			return
@@ -282,7 +326,13 @@ func (s userInSegmentsService) GetUsersInSegment(ctx context.Context, dto *domai
 		defer close(resultCh)
 		defer close(errCh)
 
-		err := s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: []string{dto.Name}})
+		err := validator.ValidateSegmentName(dto.Name)
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		err = s.segmentChecker.CheckSegmentsExists(ctx, &domain.SegmentNames{Names: []string{dto.Name}})
 		if err != nil {
 			errCh <- domain.ErrorNoSuchSegment
 			return

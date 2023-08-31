@@ -1,4 +1,4 @@
-package service
+package history
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"os"
 	"segment-service/internal/core/domain"
 	"segment-service/internal/core/ports/storage"
+	"segment-service/internal/lib/validator"
 	"strconv"
 )
 
@@ -40,6 +41,12 @@ func (s historyService) GetHistoryOfUser(ctx context.Context, dto *domain.Histor
 	go func() {
 		defer close(resultCh)
 		defer close(errCh)
+
+		err := validator.ValidateHistoryOfUserGetDTO(dto)
+		if err != nil {
+			errCh <- err
+			return
+		}
 
 		history, err := s.storage.GetHistoryOfUser(ctx, dto)
 		if err != nil {

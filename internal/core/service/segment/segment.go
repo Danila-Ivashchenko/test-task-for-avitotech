@@ -1,9 +1,11 @@
-package service
+package segment
 
 import (
 	"context"
+
 	"segment-service/internal/core/domain"
 	"segment-service/internal/core/ports/storage"
+	"segment-service/internal/lib/validator"
 )
 
 type segmentService struct {
@@ -22,7 +24,11 @@ func (s segmentService) AddSegment(ctx context.Context, dto *domain.SegmentAddDT
 
 	go func() {
 		defer close(errCh)
-
+		err := validator.ValidateSegmentName(dto.Name)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		result, err := s.storage.AddSegment(ctx, dto)
 		if err != nil {
 			errCh <- err
@@ -46,7 +52,11 @@ func (s segmentService) UpdateSegment(ctx context.Context, dto *domain.SegmentUp
 
 	go func() {
 		defer close(errCh)
-
+		err := validator.ValidateSegmentName(dto.NewName)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		result, err := s.storage.UpdateSegment(ctx, dto)
 		if err != nil {
 			errCh <- err
@@ -70,8 +80,12 @@ func (s segmentService) DeleteSegment(ctx context.Context, dto *domain.SegmentNa
 
 	go func() {
 		defer close(errCh)
-
-		err := s.storage.DeleteSegment(ctx, dto)
+		err := validator.ValidateSegmentName(dto.Name)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		err = s.storage.DeleteSegment(ctx, dto)
 		errCh <- err
 
 	}()
@@ -116,7 +130,11 @@ func (s segmentService) GetSegmentByName(ctx context.Context, dto *domain.Segmen
 	go func() {
 		defer close(resultCh)
 		defer close(errCh)
-
+		err := validator.ValidateSegmentName(dto.Name)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		result, err := s.storage.GetSegmentByName(ctx, dto)
 		if err != nil {
 			errCh <- err
@@ -140,8 +158,12 @@ func (s segmentService) CheckSegmentsExists(ctx context.Context, dto *domain.Seg
 
 	go func() {
 		defer close(errCh)
-
-		err := s.storage.CheckSegmentsExists(ctx, dto)
+		err := validator.ValidateSegmentNames(dto.Names)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		err = s.storage.CheckSegmentsExists(ctx, dto)
 		errCh <- err
 
 	}()
@@ -161,7 +183,11 @@ func (s segmentService) GetSegmentsIds(ctx context.Context, dto *domain.SegmentN
 	go func() {
 		defer close(resultCh)
 		defer close(errCh)
-
+		err := validator.ValidateSegmentNames(dto.Names)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		result, err := s.storage.GetSegmentsIds(ctx, dto)
 		if err != nil {
 			errCh <- err

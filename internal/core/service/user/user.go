@@ -1,9 +1,10 @@
-package service
+package user
 
 import (
 	"context"
 	"segment-service/internal/core/domain"
 	"segment-service/internal/core/ports/storage"
+	"segment-service/internal/lib/validator"
 )
 
 type userService struct {
@@ -24,6 +25,11 @@ func (s userService) AddUsers(ctx context.Context, dto *domain.UsersIds) (*domai
 		defer close(resultCh)
 		defer close(errCh)
 
+		err := validator.ValidateIds(dto.Ids)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		result, err := s.storage.AddUsers(ctx, dto)
 		if err != nil {
 			errCh <- err
@@ -47,7 +53,11 @@ func (s userService) CheckUsersExist(ctx context.Context, dto *domain.UsersIds) 
 
 	go func() {
 		defer close(errCh)
-
+		err := validator.ValidateIds(dto.Ids)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		errCh <- s.storage.CheckUsersExist(ctx, dto)
 	}()
 
@@ -66,6 +76,11 @@ func (s userService) GetUser(ctx context.Context, dto *domain.UserId) (*domain.U
 	go func() {
 		defer close(resultCh)
 		defer close(errCh)
+		err := validator.ValidateId(dto.Id)
+		if err != nil {
+			errCh <- err
+			return
+		}
 
 		user, err := s.storage.GetUser(ctx, dto)
 		if err != nil {
@@ -93,6 +108,11 @@ func (s userService) GetUsersIds(ctx context.Context, dto *domain.LinitOffset) (
 		defer close(resultCh)
 		defer close(errCh)
 
+		err := validator.ValidateLimitOffset(dto.Limit, dto.Offset)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		userIds, err := s.storage.GetUsersIds(ctx, dto)
 		if err != nil {
 			errCh <- err
@@ -119,6 +139,11 @@ func (s userService) GetPercentOfUsersIds(ctx context.Context, dto *domain.Users
 		defer close(resultCh)
 		defer close(errCh)
 
+		err := validator.ValidatePercent(dto.Percent)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		userIds, err := s.storage.GetPercentOfUsersIds(ctx, dto)
 		if err != nil {
 			errCh <- err
@@ -145,6 +170,11 @@ func (s userService) DeleteUsers(ctx context.Context, dto *domain.UsersIds) (*do
 		defer close(resultCh)
 		defer close(errCh)
 
+		err := validator.ValidateIds(dto.Ids)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		userIds, err := s.storage.DeleteUsers(ctx, dto)
 		if err != nil {
 			errCh <- err

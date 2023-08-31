@@ -48,7 +48,7 @@ func ValidateLimitOffset(limit, offset int) error {
 }
 
 func ValidatePercent(percent float32) error {
-	if percent < 0 || percent > 100 {
+	if percent <= 0 || percent > 100 {
 		return domain.ErrorInvalidpercentValue
 	}
 	return nil
